@@ -136,7 +136,7 @@ cd "$tmpdir"
 #git clone -b "$RELEASE" https://github.com/IronCloud/iam-ssh.git
 git clone https://github.com/IronCloud/iam-ssh.git
 
-cd "$tmpdir/aws-ec2-ssh"
+cd "$tmpdir/iam-ssh"
 
 cp authorized_keys_command.sh $AUTHORIZED_KEYS_COMMAND_FILE
 cp import_users.sh $IMPORT_USERS_SCRIPT_FILE
