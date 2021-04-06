@@ -170,7 +170,7 @@ then
     echo "USERDEL_ARGS=\"${USERDEL_ARGS}\"" >> $MAIN_CONFIG_FILE
 fi
 
-./install_configure_selinux.sh
+#./install_configure_selinux.sh
 
 ./install_configure_sshd.sh
 
