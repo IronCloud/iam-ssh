@@ -1,0 +1,421 @@
+---
+# The MIT License (MIT)
+# 
+# Copyright (c) 2016 widdix GmbH
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AWS EC2 SSH access with IAM showcase using install.sh'
+Parameters:
+  VPC:
+    Type: 'AWS::EC2::VPC::Id'
+    Description: 'The VPC the EC2 instance is launched into.'
+  Subnet:
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: 'The subnet the EC2 instance is launched into.'
+  AssumeRole:
+    Type: 'String'
+    Description: 'Optional IAM role ARN to assume to get the IAM users from another account'
+    Default: ''
+  KeyName:
+    Description: 'Optional key pair of the ec2-user to establish a SSH connection to the EC2 instance when things go wrong.'
+    Type: String
+    Default: ''
+  OS:
+    Description: 'Operating system'
+    Type: String
+    Default: 'AmazonLinux'
+    AllowedValues:
+    - AmazonLinux
+    - AmazonLinux2
+    - Ubuntu
+    - SUSELinuxEnterpriseServer
+    - RHEL
+    - CentOS
+Mappings:
+  OSMap:
+    AmazonLinux:
+      RegionMap: RegionMapAmazonLinux
+      UserData: |
+        trap '/opt/aws/bin/cfn-signal -e 1 --stack=${STACKNAME} --region=${REGION} --resource=Instance' ERR
+        /opt/aws/bin/cfn-init --verbose --stack=${STACKNAME} --region=${REGION} --resource=Instance
+        /opt/aws/bin/cfn-signal -e 0 --stack=${STACKNAME} --region=${REGION} --resource=Instance
+    AmazonLinux2:
+      RegionMap: RegionMapAmazonLinux2
+      UserData: |
+        trap '/opt/aws/bin/cfn-signal -e 1 --stack=${STACKNAME} --region=${REGION} --resource=Instance' ERR
+        /opt/aws/bin/cfn-init --verbose --stack=${STACKNAME} --region=${REGION} --resource=Instance
+        /opt/aws/bin/cfn-signal -e 0 --stack=${STACKNAME} --region=${REGION} --resource=Instance
+    Ubuntu:
+      RegionMap: RegionMapUbuntu
+      UserData: |
+        trap '/usr/local/bin/cfn-signal -e 1 --stack=${STACKNAME} --region=${REGION} --resource=Instance' ERR
+        apt-get update
+        apt-get -y install python-setuptools
+        mkdir aws-cfn-bootstrap-latest
+        curl -s -m 60 https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz | tar xz -C aws-cfn-bootstrap-latest --strip-components 1
+        easy_install aws-cfn-bootstrap-latest
+        /usr/local/bin/cfn-init --verbose --stack=${STACKNAME} --region=${REGION} --resource=Instance
+        /usr/local/bin/cfn-signal -e 0 --stack=${STACKNAME} --region=${REGION} --resource=Instance
+    SUSELinuxEnterpriseServer:
+      RegionMap: RegionMapSUSELinuxEnterpriseServer
+      UserData: |
+        trap '/usr/bin/cfn-signal -e 1 --stack=${STACKNAME} --region=${REGION} --resource=Instance' ERR
+        mkdir aws-cfn-bootstrap-latest
+        curl -s -m 60 https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz | tar xz -C aws-cfn-bootstrap-latest --strip-components 1
+        easy_install aws-cfn-bootstrap-latest
+        /usr/bin/cfn-init --verbose --stack=${STACKNAME} --region=${REGION} --resource=Instance
+        /usr/bin/cfn-signal -e 0 --stack=${STACKNAME} --region=${REGION} --resource=Instance
+    RHEL:
+      RegionMap: RegionMapRHEL
+      UserData: |
+        trap '/bin/cfn-signal -e 1 --stack=${STACKNAME} --region=${REGION} --resource=Instance' ERR
+        mkdir aws-cfn-bootstrap-latest
+        curl -s -m 60 https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz | tar xz -C aws-cfn-bootstrap-latest --strip-components 1
+        easy_install aws-cfn-bootstrap-latest
+        /bin/cfn-init --verbose --stack=${STACKNAME} --region=${REGION} --resource=Instance
+        /bin/cfn-signal -e 0 --stack=${STACKNAME} --region=${REGION} --resource=Instance
+    CentOS:
+      RegionMap: RegionMapCentOS
+      UserData: |
+        trap '/bin/cfn-signal -e 1 --stack=${STACKNAME} --region=${REGION} --resource=Instance' ERR
+        mkdir aws-cfn-bootstrap-latest
+        curl -s -m 60 https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz | tar xz -C aws-cfn-bootstrap-latest --strip-components 1
+        easy_install aws-cfn-bootstrap-latest
+        /bin/cfn-init --verbose --stack=${STACKNAME} --region=${REGION} --resource=Instance
+        /bin/cfn-signal -e 0 --stack=${STACKNAME} --region=${REGION} --resource=Instance
+  RegionMapAmazonLinux:
+    'ap-south-1':
+      AMI: 'ami-531a4c3c'
+    'eu-west-3':
+      AMI: 'ami-8ee056f3'
+    'eu-west-2':
+      AMI: 'ami-403e2524'
+    'eu-west-1':
+      AMI: 'ami-d834aba1'
+    'ap-northeast-2':
+      AMI: 'ami-863090e8'
+    'ap-northeast-1':
+      AMI: 'ami-ceafcba8'
+    'sa-east-1':
+      AMI: 'ami-84175ae8'
+    'ca-central-1':
+      AMI: 'ami-a954d1cd'
+    'ap-southeast-1':
+      AMI: 'ami-68097514'
+    'ap-southeast-2':
+      AMI: 'ami-942dd1f6'
+    'eu-central-1':
+      AMI: 'ami-5652ce39'
+    'us-east-1':
+      AMI: 'ami-97785bed'
+    'us-east-2':
+      AMI: 'ami-f63b1193'
+    'us-west-1':
+      AMI: 'ami-824c4ee2'
+    'us-west-2':
+      AMI: 'ami-f2d3638a'
+  RegionMapAmazonLinux2:
+    'ap-south-1':
+      AMI: 'ami-3b2f7954'
+    'eu-west-3':
+      AMI: 'ami-5ce55321'
+    'eu-west-2':
+      AMI: 'ami-6d263d09'
+    'eu-west-1':
+      AMI: 'ami-db1688a2'
+    'ap-northeast-2':
+      AMI: 'ami-3e04a450'
+    'ap-northeast-1':
+      AMI: 'ami-c2680fa4'
+    'sa-east-1':
+      AMI: 'ami-f1337e9d'
+    'ca-central-1':
+      AMI: 'ami-7549cc11'
+    'ap-southeast-1':
+      AMI: 'ami-4f89f533'
+    'ap-southeast-2':
+      AMI: 'ami-38708c5a'
+    'eu-central-1':
+      AMI: 'ami-1b2bb774'
+    'us-east-1':
+      AMI: 'ami-428aa838'
+    'us-east-2':
+      AMI: 'ami-710e2414'
+    'us-west-1':
+      AMI: 'ami-4a787a2a'
+    'us-west-2':
+      AMI: 'ami-7f43f307'
+  RegionMapUbuntu:
+    'ap-south-1':
+      AMI: 'ami-5d055232'
+    'eu-west-3':
+      AMI: 'ami-5e0eb923'
+    'eu-west-2':
+      AMI: 'ami-d7aab2b3'
+    'eu-west-1':
+      AMI: 'ami-4d46d534'
+    'ap-northeast-2':
+      AMI: 'ami-67973709'
+    'ap-northeast-1':
+      AMI: 'ami-d39a02b5'
+    'sa-east-1':
+      AMI: 'ami-1157157d'
+    'ca-central-1':
+      AMI: 'ami-f0870294'
+    'ap-southeast-1':
+      AMI: 'ami-325d2e4e'
+    'ap-southeast-2':
+      AMI: 'ami-37df2255'
+    'eu-central-1':
+      AMI: 'ami-af79ebc0'
+    'us-east-1':
+      AMI: 'ami-41e0b93b'
+    'us-east-2':
+      AMI: 'ami-2581aa40'
+    'us-west-1':
+      AMI: 'ami-79aeae19'
+    'us-west-2':
+      AMI: 'ami-1ee65166'
+  RegionMapSUSELinuxEnterpriseServer:
+    'ap-south-1':
+      AMI: 'ami-f7267298'
+    'eu-west-3':
+      AMI: 'ami-f312a58e'
+    'eu-west-2':
+      AMI: 'ami-fbcad29f'
+    'eu-west-1':
+      AMI: 'ami-32b6214b'
+    'ap-northeast-2':
+      AMI: 'ami-2eff5f40'
+    'ap-northeast-1':
+      AMI: 'ami-bddd41db'
+    'sa-east-1':
+      AMI: 'ami-b1a1e2dd'
+    'ca-central-1':
+      AMI: 'ami-61dc5905'
+    'ap-southeast-1':
+      AMI: 'ami-ce7006b2'
+    'ap-southeast-2':
+      AMI: 'ami-15e81a77'
+    'eu-central-1':
+      AMI: 'ami-7215851d'
+    'us-east-1':
+      AMI: 'ami-a03869da'
+    'us-east-2':
+      AMI: 'ami-75143f10'
+    'us-west-1':
+      AMI: 'ami-934242f3'
+    'us-west-2':
+      AMI: 'ami-6bc56f13'
+  RegionMapRHEL:
+    'ap-south-1':
+      AMI: 'ami-e41b618b'
+    'eu-west-3':
+      AMI: 'ami-39902744'
+    'eu-west-2':
+      AMI: 'ami-a1f5e4c5'
+    'eu-west-1':
+      AMI: 'ami-bb9a6bc2'
+    'ap-northeast-2':
+      AMI: 'ami-0f5a8361'
+    'ap-northeast-1':
+      AMI: 'ami-30ef0556'
+    'sa-east-1':
+      AMI: 'ami-a789ffcb'
+    'ca-central-1':
+      AMI: 'ami-dad866be'
+    'ap-southeast-1':
+      AMI: 'ami-10bb2373'
+    'ap-southeast-2':
+      AMI: 'ami-ccecf5af'
+    'eu-central-1':
+      AMI: 'ami-d74be5b8'
+    'us-east-1':
+      AMI: 'ami-c998b6b2'
+    'us-east-2':
+      AMI: 'ami-cfdafaaa'
+    'us-west-1':
+      AMI: 'ami-66eec506'
+    'us-west-2':
+      AMI: 'ami-9fa343e7'
+  RegionMapCentOS:
+    'ap-south-1':
+      AMI: 'ami-a691d8c9'
+    'eu-west-2':
+      AMI: 'ami-d5213fb1'
+    'eu-west-1':
+      AMI: 'ami-147fc16d'
+    'ap-northeast-2':
+      AMI: 'ami-56a40238'
+    'ap-northeast-1':
+      AMI: 'ami-1b27a37d'
+    'sa-east-1':
+      AMI: 'ami-284d0a44'
+    'ca-central-1':
+      AMI: 'ami-161ea572'
+    'eu-central-1':
+      AMI: 'ami-8f62ece0'
+    'us-east-1':
+      AMI: 'ami-95096eef'
+    'us-east-2':
+      AMI: 'ami-2d103948'
+    'us-west-1':
+      AMI: 'ami-c0bf85a0'
+    'us-west-2':
+      AMI: 'ami-02c71d7a'
+Conditions:
+  UseCrossAccountIAM: !Not [!Equals [!Ref AssumeRole, '']]
+  UseLocalIAM: !Equals [!Ref AssumeRole, '']
+  HasKeyName: !Not [!Equals [!Ref KeyName, '']]
+Resources:
+  SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: ssh
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+      - CidrIp: '0.0.0.0/0'
+        IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+  InstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Roles:
+      - !Ref Role
+  Role:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: 'ec2.amazonaws.com'
+          Action: 'sts:AssumeRole'
+      Path: /
+  CrossAccountRolePolicy:
+    Type: 'AWS::IAM::Policy'
+    Condition: UseCrossAccountIAM
+    Properties:
+      PolicyName: crossaccountiam
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: 'sts:AssumeRole'
+            Resource: !Ref AssumeRole
+      Roles:
+        - !Ref Role
+  LocalRolePolicy:
+    Type: 'AWS::IAM::Policy'
+    Condition: UseLocalIAM
+    Properties:
+      PolicyName: iam
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: 
+          - 'iam:ListUsers'
+          - 'iam:GetGroup'
+          Resource: '*'
+        - Effect: Allow
+          Action:
+          - 'iam:ListSSHPublicKeys'
+          - 'iam:GetSSHPublicKey'
+          Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:user/*'
+        - Effect: Allow
+          Action: 'ec2:DescribeTags'
+          Resource: '*'
+      Roles:
+        - !Ref Role
+  Instance:
+    Type: AWS::EC2::Instance
+    Metadata:
+      'AWS::CloudFormation::Init':
+        configSets:
+          default: [!Sub 'prepare${OS}', install]
+        prepareAmazonLinux:
+          packages:
+            yum:
+              git: []
+        prepareAmazonLinux2:
+          packages:
+            yum:
+              git: []
+        prepareUbuntu:
+          packages:
+            apt:
+              git: []
+              awscli: []
+        prepareSUSELinuxEnterpriseServer: {}
+        prepareRHEL:
+          packages:
+            yum:
+              git: []
+              unzip: []
+          commands:
+            a_download:
+              command: 'curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"'
+              cwd: '/tmp'
+            b_extract:
+              command: 'unzip awscli-bundle.zip'
+              cwd: '/tmp'
+            c_install:
+              command: './awscli-bundle/install -i /usr/local/aws -b /bin/aws'
+              cwd: '/tmp'
+        prepareCentOS:
+          packages:
+            rpm:
+              epel: 'http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm'
+            yum:
+              git: []
+              awscli: []
+        install:
+          files:
+            '/opt/install.sh':
+              source: 'https://raw.githubusercontent.com/widdix/aws-ec2-ssh/master/install.sh'
+              mode: '000755'
+              owner: root
+              group: root
+          commands:
+            a_install:
+              command: !Sub './install.sh -a "${AssumeRole}"'
+              cwd: '/opt'
+    Properties:
+      ImageId: !FindInMap [!FindInMap [OSMap, !Ref OS, RegionMap], !Ref 'AWS::Region', AMI]
+      IamInstanceProfile: !Ref InstanceProfile
+      InstanceType: 't2.micro'
+      KeyName: !If [HasKeyName, !Ref KeyName, !Ref 'AWS::NoValue']
+      UserData:
+        'Fn::Base64': !Sub
+          - |
+              #!/bin/bash -ex
+              export REGION=${AWS::Region}
+              export STACKNAME=${AWS::StackName}
+              ${UserData}
+          - UserData: !FindInMap [OSMap, !Ref OS, UserData]
+      NetworkInterfaces:
+      - AssociatePublicIpAddress: true
+        DeleteOnTermination: true
+        SubnetId: !Ref Subnet
+        DeviceIndex: 0
+        GroupSet:
+        - !Ref SecurityGroup
+      Tags:
+      - Key: Name
+        Value: 'AWS EC2 SSH access with IAM showcase'
+    CreationPolicy:
+      ResourceSignal:
+        Count: 1
+        Timeout: PT20M
+Outputs:
+  PublicName:
+    Description: 'The public name of the EC2 instance.'
+    Value: !GetAtt 'Instance.PublicDnsName'
