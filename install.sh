@@ -133,7 +133,8 @@ tmpdir=$(mktemp -d)
 
 cd "$tmpdir"
 
-git clone -b "$RELEASE" https://github.com/IronCloud/iam-ssh.git
+#git clone -b "$RELEASE" https://github.com/IronCloud/iam-ssh.git
+git clone https://github.com/IronCloud/iam-ssh.git
 
 cd "$tmpdir/aws-ec2-ssh"
 
