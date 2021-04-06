@@ -109,8 +109,14 @@ export USERDEL_PROGRAM
 export USERDEL_ARGS
 
 
+
+# Add AWS CLI and remove ec2 instance connect
+apt update && apt install awscli -y 
+apt remove ec2-instance-connect -y 
+
 # Add system user for AuthorizedKeysCommandUser
-/usr/sbin/adduser $AuthorizedKeysCommandUser -s /bin/bash --quiet --disabled-password
+
+/usr/sbin/addgroup $AuthorizedKeysCommandUser ; /usr/sbin/adduser --system $AuthorizedKeysCommandUser --shell /bin/bash --quiet --disabled-password ; /usr/sbin/adduser $AuthorizedKeysCommandUser $AuthorizedKeysCommandUser
 
 # check if iamsshuser exists
 if getent passwd iamawsssh > /dev/null 2>&1; then
@@ -146,8 +152,10 @@ cd "$tmpdir/iam-ssh"
 cp authorized_keys_command.sh $AUTHORIZED_KEYS_COMMAND_FILE
 cp import_users.sh $IMPORT_USERS_SCRIPT_FILE
 
+
 #CHANGE SCRIPT PERMISSIONS! Gotcha
 /usr/bin/chgrp iamawsssh $AUTHORIZED_KEYS_COMMAND_FILE
+chmod 755 $AUTHORIZED_KEYS_COMMAND_FILE
 
 if [ "${IAM_GROUPS}" != "" ]
 then
