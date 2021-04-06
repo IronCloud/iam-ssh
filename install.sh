@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+#Example usage: ./install.sh -i Ec2SSHprod -s SSHSudoers
+
 show_help() {
 cat << EOF
 Usage: ${0##*/} [-hv] [-a ARN] [-i GROUP,GROUP,...] [-l GROUP,GROUP,...] [-s GROUP] [-p PROGRAM] [-u "ARGUMENTS"] [-r RELEASE]
@@ -32,9 +34,9 @@ EOF
 }
 
 export SSHD_CONFIG_FILE="/etc/ssh/sshd_config"
-export AUTHORIZED_KEYS_COMMAND_FILE="/opt/authorized_keys_command.sh"
-export IMPORT_USERS_SCRIPT_FILE="/opt/import_users.sh"
-export MAIN_CONFIG_FILE="/etc/aws-ec2-ssh.conf"
+export AUTHORIZED_KEYS_COMMAND_FILE="/home/ubuntu/authorized_keys_command.sh"
+export IMPORT_USERS_SCRIPT_FILE="/home/ubuntu/import_users.sh"
+export MAIN_CONFIG_FILE="/home/ubuntu/aws-ec2-ssh.conf"
 
 IAM_GROUPS=""
 SUDO_GROUPS=""
@@ -176,7 +178,7 @@ SHELL=/bin/bash
 PATH=/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/aws/bin
 MAILTO=root
 HOME=/
-*/10 * * * * root $IMPORT_USERS_SCRIPT_FILE
+*/5 * * * * root $IMPORT_USERS_SCRIPT_FILE
 EOF
 chmod 0644 /etc/cron.d/import_users
 
