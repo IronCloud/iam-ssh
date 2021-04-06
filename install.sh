@@ -48,6 +48,7 @@ USERADD_ARGS=""
 USERDEL_PROGRAM=""
 USERDEL_ARGS=""
 RELEASE="master"
+AuthorizedKeysCommandUser="iamawsssh"
 
 while getopts :hva:i:l:s:p:u:d:f:r: opt
 do
@@ -118,6 +119,15 @@ if ! [ -x "$(which git)" ]; then
     echo "git executable not found - exiting!"
     exit 1
 fi
+
+# check if iamsshuser exists
+if getent passwd iamawsssh > /dev/null 2>&1; then
+    sleep 1
+else
+    echo "the AuthorizedKeysCommandUser user does not exist, exiting!"
+    exit 1
+fi
+
 
 tmpdir=$(mktemp -d)
 
