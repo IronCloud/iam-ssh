@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
-# Forked from https://github.com/widdix/aws-ec2-ssh
-#Example usage: ./install.sh -i Ec2SSHprod -s SSHSudoers
+#Forked from https://github.com/widdix/aws-ec2-ssh
 
 show_help() {
 cat << EOF
@@ -155,7 +154,7 @@ cp import_users.sh $IMPORT_USERS_SCRIPT_FILE
 
 #CHANGE SCRIPT PERMISSIONS! Gotcha
 /usr/bin/chgrp iamawsssh $AUTHORIZED_KEYS_COMMAND_FILE
-chmod 755 $AUTHORIZED_KEYS_COMMAND_FILE
+/usr/bin/chmod 755 $AUTHORIZED_KEYS_COMMAND_FILE
 
 if [ "${IAM_GROUPS}" != "" ]
 then
