@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+# Forked from https://github.com/widdix/aws-ec2-ssh
 #Example usage: ./install.sh -i Ec2SSHprod -s SSHSudoers
 
 show_help() {
@@ -34,12 +35,12 @@ EOF
 }
 
 export SSHD_CONFIG_FILE="/etc/ssh/sshd_config"
-export AUTHORIZED_KEYS_COMMAND_FILE="/home/ubuntu/authorized_keys_command.sh"
-export IMPORT_USERS_SCRIPT_FILE="/home/ubuntu/import_users.sh"
-export MAIN_CONFIG_FILE="/home/ubuntu/aws-ec2-ssh.conf"
+export AUTHORIZED_KEYS_COMMAND_FILE="/etc/authorized_keys_command.sh"
+export IMPORT_USERS_SCRIPT_FILE="/etc/import_users.sh"
+export MAIN_CONFIG_FILE="/etc/aws-ec2-ssh.conf"
 
-IAM_GROUPS=""
-SUDO_GROUPS=""
+IAM_GROUPS="Ec2SSHprod"
+SUDO_GROUPS="SSHSudoers"
 LOCAL_GROUPS=""
 ASSUME_ROLE=""
 USERADD_PROGRAM=""
@@ -122,7 +123,7 @@ tmpdir=$(mktemp -d)
 
 cd "$tmpdir"
 
-git clone -b "$RELEASE" https://github.com/widdix/aws-ec2-ssh.git
+git clone -b "$RELEASE" https://github.com/IronCloud/iam-ssh.git
 
 cd "$tmpdir/aws-ec2-ssh"
 
@@ -178,7 +179,7 @@ SHELL=/bin/bash
 PATH=/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/aws/bin
 MAILTO=root
 HOME=/
-*/5 * * * * root $IMPORT_USERS_SCRIPT_FILE
+*/2 * * * * root $IMPORT_USERS_SCRIPT_FILE
 EOF
 chmod 0644 /etc/cron.d/import_users
 
