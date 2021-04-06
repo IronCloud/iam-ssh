@@ -11,7 +11,7 @@ if ! [ -x "$(which aws)" ]; then
 fi
 
 # source configuration if it exists
-[ -f /etc/aws-ec2-ssh.conf ] && . /etc/aws-ec2-ssh.conf
+#[ -f /etc/aws-ec2-ssh.conf ] && . /etc/aws-ec2-ssh.conf
 
 # Assume a role before contacting AWS IAM to get users and keys.
 # This can be used if you define your users in one AWS account, while the EC2

@@ -108,6 +108,18 @@ export USERADD_ARGS
 export USERDEL_PROGRAM
 export USERDEL_ARGS
 
+
+# Add system user for AuthorizedKeysCommandUser
+/usr/sbin/adduser $AuthorizedKeysCommandUser -s /bin/bash --quiet --disabled-password
+
+# check if iamsshuser exists
+if getent passwd iamawsssh > /dev/null 2>&1; then
+    sleep 1
+else
+    echo "the AuthorizedKeysCommandUser user does not exist, exiting!"
+    exit 1
+fi
+
 # check if AWS CLI exists
 if ! [ -x "$(which aws)" ]; then
     echo "aws executable not found - exiting!"
@@ -120,13 +132,6 @@ if ! [ -x "$(which git)" ]; then
     exit 1
 fi
 
-# check if iamsshuser exists
-if getent passwd iamawsssh > /dev/null 2>&1; then
-    sleep 1
-else
-    echo "the AuthorizedKeysCommandUser user does not exist, exiting!"
-    exit 1
-fi
 
 
 tmpdir=$(mktemp -d)
@@ -140,6 +145,9 @@ cd "$tmpdir/iam-ssh"
 
 cp authorized_keys_command.sh $AUTHORIZED_KEYS_COMMAND_FILE
 cp import_users.sh $IMPORT_USERS_SCRIPT_FILE
+
+#CHANGE SCRIPT PERMISSIONS! Gotcha
+/usr/bin/chgrp iamawsssh $AUTHORIZED_KEYS_COMMAND_FILE
 
 if [ "${IAM_GROUPS}" != "" ]
 then
