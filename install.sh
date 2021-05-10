@@ -212,3 +212,7 @@ chmod 0644 /etc/cron.d/import_users
 $IMPORT_USERS_SCRIPT_FILE
 
 ./install_restart_sshd.sh
+
+# change permissions of /etc/aws-ec2-ssh.conf to fix bug after hardening
+/usr/bin/chgrp iamawsssh /etc/aws-ec2-ssh.conf
+/usr/bin/chmod 755 /etc/aws-ec2-ssh.conf
