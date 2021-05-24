@@ -69,7 +69,7 @@ do
             LOCAL_GROUPS="$OPTARG"
             ;;
         x)
-            USERDEL_PROGRAM="$OPTARG"
+            AWS_REGION="$OPTARG"
             ;;
         v)
             set -x
