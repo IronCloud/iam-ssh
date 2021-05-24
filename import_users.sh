@@ -1,4 +1,5 @@
 #!/bin/bash -e
+# GovCloud v.3.24.21
 
 function log() {
     /usr/bin/logger -i -p auth.info -t aws-ec2-ssh "$@"

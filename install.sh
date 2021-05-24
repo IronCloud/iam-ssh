@@ -1,6 +1,5 @@
 #!/bin/bash -e
-
-#Forked from https://github.com/widdix/aws-ec2-ssh
+# GovCloud v.3.24.21
 
 show_help() {
 cat << EOF

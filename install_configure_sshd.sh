@@ -1,4 +1,5 @@
 #!/bin/bash -e
+# GovCloud v.3.24.21
 
 # add new line if file does not end with new line
 if [ -n "$(tail -c1 ${SSHD_CONFIG_FILE})" ]; then
