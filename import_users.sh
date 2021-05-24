@@ -67,7 +67,6 @@ fi
 # Initizalize INSTANCE variable
 METADATA_TOKEN=$(curl -s -X PUT -H 'x-aws-ec2-metadata-token-ttl-seconds: 60' http://169.254.169.254/latest/api/token)
 INSTANCE_ID=$(curl -s -H "x-aws-ec2-metadata-token: ${METADATA_TOKEN}" http://169.254.169.254/latest/meta-data/instance-id)
-REGION=$(curl -s -H "x-aws-ec2-metadata-token: ${METADATA_TOKEN}" http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | awk -F\" '{print $4}')
 
 function setup_aws_credentials() {
     local stscredentials
