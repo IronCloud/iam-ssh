@@ -4,7 +4,7 @@
 
 show_help() {
 cat << EOF
-Usage: ${0##*/} [-hv] [-a ARN] [-i GROUP,GROUP,...] [-l GROUP,GROUP,...] [-s GROUP] [-p PROGRAM] [-u "ARGUMENTS"] [-r RELEASE]
+Usage: ${0##*/} [-hv] [-a ARN] [-i GROUP,GROUP,...] [-l GROUP,GROUP,...] [-s GROUP] [-x REGION] [-p PROGRAM] [-u "ARGUMENTS"] [-r RELEASE]
 Install import_users.sh and authorized_key_commands.
 
     -h                 display this help and exit
@@ -23,6 +23,8 @@ Install import_users.sh and authorized_key_commands.
                        Comma seperated list
     -p program         Specify your useradd program to use.
                        Defaults to '/usr/sbin/useradd'
+    -x region          Specify your AWS govcloud region.
+                       Defaults to us-gov-east-1
     -u "useradd args"  Specify arguments to use with useradd.
                        Defaults to '--create-home --shell /bin/bash'
     -r release         Specify a release of aws-ec2-ssh to download from GitHub. This argument is
@@ -38,18 +40,19 @@ export AUTHORIZED_KEYS_COMMAND_FILE="/etc/authorized_keys_command.sh"
 export IMPORT_USERS_SCRIPT_FILE="/etc/import_users.sh"
 export MAIN_CONFIG_FILE="/etc/aws-ec2-ssh.conf"
 
-IAM_GROUPS="Ec2SSHprod"
-SUDO_GROUPS="SSHSudoers"
+IAM_GROUPS=""
+SUDO_GROUPS=""
 LOCAL_GROUPS=""
 ASSUME_ROLE=""
 USERADD_PROGRAM=""
 USERADD_ARGS=""
 USERDEL_PROGRAM=""
 USERDEL_ARGS=""
+AWS_REGION="us-gov-east-1"
 RELEASE="master"
 AuthorizedKeysCommandUser="iamawsssh"
 
-while getopts :hva:i:l:s:p:u:d:f:r: opt
+while getopts :hva:i:l:s:p:u:d:x:f:r: opt
 do
     case $opt in
         h)
@@ -64,6 +67,9 @@ do
             ;;
         l)
             LOCAL_GROUPS="$OPTARG"
+            ;;
+        x)
+            USERDEL_PROGRAM="$OPTARG"
             ;;
         v)
             set -x
@@ -106,6 +112,7 @@ export USERADD_PROGRAM
 export USERADD_ARGS
 export USERDEL_PROGRAM
 export USERDEL_ARGS
+export AWS_REGION
 
 
 
@@ -114,7 +121,6 @@ apt update && apt install awscli -y
 apt remove ec2-instance-connect -y 
 
 # Add system user for AuthorizedKeysCommandUser
-
 /usr/sbin/addgroup $AuthorizedKeysCommandUser ; /usr/sbin/adduser --system $AuthorizedKeysCommandUser --shell /bin/bash --quiet --disabled-password ; /usr/sbin/adduser $AuthorizedKeysCommandUser $AuthorizedKeysCommandUser
 
 # check if iamsshuser exists
@@ -159,6 +165,11 @@ cp import_users.sh $IMPORT_USERS_SCRIPT_FILE
 if [ "${IAM_GROUPS}" != "" ]
 then
     echo "IAM_AUTHORIZED_GROUPS=\"${IAM_GROUPS}\"" >> $MAIN_CONFIG_FILE
+fi
+
+if [ "${AWS_REGION}" != "" ]
+then
+    echo "AWS_REGION=\"${AWS_REGION}\"" >> $MAIN_CONFIG_FILE
 fi
 
 if [ "${SUDO_GROUPS}" != "" ]

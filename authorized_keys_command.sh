@@ -24,7 +24,7 @@ then
     --role-arn "${ASSUMEROLE}" \
     --role-session-name something \
     --query '[Credentials.SessionToken,Credentials.AccessKeyId,Credentials.SecretAccessKey]' \
-    --output text)
+    --output text --region $AWS_REGION)
 
   AWS_ACCESS_KEY_ID=$(echo "${STSCredentials}" | awk '{print $2}')
   AWS_SECRET_ACCESS_KEY=$(echo "${STSCredentials}" | awk '{print $3}')

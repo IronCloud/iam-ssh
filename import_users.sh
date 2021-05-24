@@ -48,6 +48,9 @@ fi
 # instance you use this script runs in another.
 : ${ASSUMEROLE:=""}
 
+# Specific region we're operating in.
+: ${AWS_REGION:=""}
+
 # Possibility to provide a custom useradd program
 : ${USERADD_PROGRAM:="/usr/sbin/useradd"}
 
@@ -73,7 +76,7 @@ function setup_aws_credentials() {
             --role-arn "${ASSUMEROLE}" \
             --role-session-name something \
             --query '[Credentials.SessionToken,Credentials.AccessKeyId,Credentials.SecretAccessKey]' \
-            --output text)
+            --output text --region "${AWS_REGION}")
 
         AWS_ACCESS_KEY_ID=$(echo "${stscredentials}" | awk '{print $2}')
         AWS_SECRET_ACCESS_KEY=$(echo "${stscredentials}" | awk '{print $3}')
@@ -88,7 +91,7 @@ function get_iam_groups_from_tag() {
     if [ "${IAM_AUTHORIZED_GROUPS_TAG}" ]
     then
         IAM_AUTHORIZED_GROUPS=$(\
-            aws --region $REGION ec2 describe-tags \
+            aws --region $AWS_REGION ec2 describe-tags \
             --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=$IAM_AUTHORIZED_GROUPS_TAG" \
             --query "Tags[0].Value" --output text \
         )
@@ -102,14 +105,14 @@ function get_iam_users() {
     then
         aws iam list-users \
             --query "Users[].[UserName]" \
-            --output text \
+            --output text --region $AWS_REGION \
         | sed "s/\r//g"
     else
         for group in $(echo ${IAM_AUTHORIZED_GROUPS} | tr "," " "); do
             aws iam get-group \
                 --group-name "${group}" \
                 --query "Users[].[UserName]" \
-                --output text \
+                --output text --region $AWS_REGION \
             | sed "s/\r//g"
         done
     fi
@@ -136,7 +139,7 @@ function get_sudoers_groups_from_tag() {
     if [ "${SUDOERS_GROUPS_TAG}" ]
     then
         SUDOERS_GROUPS=$(\
-            aws --region $REGION ec2 describe-tags \
+            aws --region $AWS_REGION ec2 describe-tags \
             --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=$SUDOERS_GROUPS_TAG" \
             --query "Tags[0].Value" --output text \
         )
@@ -152,7 +155,7 @@ function get_sudoers_users() {
             aws iam get-group \
                 --group-name "${group}" \
                 --query "Users[].[UserName]" \
-                --output text
+                --output text --region $AWS_REGION}
         done
 }
 
