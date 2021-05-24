@@ -149,7 +149,7 @@ tmpdir=$(mktemp -d)
 
 cd "$tmpdir"
 
-#git clone -b "$RELEASE" https://github.com/IronCloud/iam-ssh.git
+# Clone the GovCloud repo
 git clone https://github.com/IronCloud/iam-ssh.git
 
 cd "$tmpdir/iam-ssh"
