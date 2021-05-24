@@ -149,7 +149,9 @@ tmpdir=$(mktemp -d)
 cd "$tmpdir"
 
 # Clone the GovCloud repo
-git clone https://github.com/IronCloud/iam-ssh.git
+
+git clone -b govcloud --single-branch https://github.com/IronCloud/iam-ssh.git
+#git clone https://github.com/IronCloud/iam-ssh.git
 
 cd "$tmpdir/iam-ssh"
 
