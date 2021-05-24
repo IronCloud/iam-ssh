@@ -47,7 +47,7 @@ USERADD_PROGRAM=""
 USERADD_ARGS=""
 USERDEL_PROGRAM=""
 USERDEL_ARGS=""
-AWS_REGION="us-gov-east-1"
+AWS_REGION="us-gov-west-1"
 RELEASE="master"
 AuthorizedKeysCommandUser="iamawsssh"
 
